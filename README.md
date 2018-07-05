@@ -6,10 +6,15 @@
 
 1. Clone this repository
 
-2. Start the Docker container and mount the [scripts](./scripts) directory as a volume.
+```bash
+git clone git@github.com:petrvlcek/mitmproxy-docker.git
+cd mitmproxy-docker
+```
+
+2. Start the Docker container and mount project root as a `/data` volume.
 
 ```bash
-docker run --rm -it -p 8888:8080 -p 127.0.0.1:8889:8081 -v $(pwd)/scripts:/scripts  mitmproxy/mitmproxy mitmweb --web-iface 0.0.0.0 -s /scripts/noop.py
+docker run --rm -it -p 8888:8080 -p 127.0.0.1:8889:8081 -v $(pwd):/data  mitmproxy/mitmproxy mitmweb --web-iface 0.0.0.0 -s /data/scripts/redirect.py -s /data/scripts/modify_response.py
 ```
 
 or just 
@@ -26,14 +31,13 @@ or just
 curl --proxy localhost:8888 -X GET http://old.host.com
 ```
 
-## Basic scripts
+## Example scripts
 Scripts can be used for intercepting requests passing throught the proxy. In the [scripts](./scripts) directory you can find some basic examples ready for use.
 
-You can point to the script when starting the container and you can switch to another script any time later from the web console (in the Options). Scripts are also reloaded any time you modify them.
+You can point to the script (or multiple scripts) when starting the container and you can switch to another script any time later from the web console (in the Options). Scripts are also reloaded whenever you modify them.
 
-More examples are in mitmproxy's [GitHub repository]( https://github.com/mitmproxy/mitmproxy/tree/master/examples).
 
-### Redirecting requests
+1. [Redirecting requests](./scripts/redirect.py)
 ```python
 """
 This example shows two ways to redirect flows to another server.
@@ -47,3 +51,6 @@ def request(flow: http.HTTPFlow) -> None:
     if flow.request.pretty_host == "original.host.com":
         flow.request.host = "new.host.com"
 ```
+2. [Response modification](./scripts/modify_response.py)
+
+More examples are in mitmproxy's [GitHub repository]( https://github.com/mitmproxy/mitmproxy/tree/master/examples).
